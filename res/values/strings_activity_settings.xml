@@ -1,0 +1,14 @@
+<resources>
+
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Strings related to Settings -->
+
+
+    <!-- Example General settings -->
+    <string name="pref_header_general">General</string>
+    <string name="pref_host_address">Server</string>
+    <string name="pref_use_https">Use HTTPS</string>
+	<string name="pref_default_host_address">cordless.se</string>
+
+</resources>
