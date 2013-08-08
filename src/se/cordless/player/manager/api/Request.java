@@ -6,13 +6,18 @@ import org.json.JSONObject;
 public class Request {
 
 	public String method;
-	protected JSONObject payload;
+	private JSONObject payload;
 	
 	public Request(String method) {
 		this.method = method;
+		this.payload = new JSONObject();
 	}
 	
 	public void addData(String name, String value) throws JSONException {
+		this.payload.put(name, value);
+	}
+
+	public void addData(String name, Boolean value) throws JSONException {
 		this.payload.put(name, value);
 	}
 	

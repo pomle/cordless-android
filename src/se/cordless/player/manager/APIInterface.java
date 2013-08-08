@@ -1,7 +1,6 @@
 package se.cordless.player.manager;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -36,16 +35,30 @@ public class APIInterface {
 		this(baseURL, "");
 	}
 
-	public Response sendRequest(Request request) {
+	public Response sendRequest(Request request) throws Exception {
 		
-		StringBuilder builder = new StringBuilder();
+		StringBuilder endpoint = new StringBuilder();
+		StringBuilder responsePayload = new StringBuilder();
 		
 		try {
+			endpoint.append(this.baseURL + "?");
+			
+			if (!accessToken.isEmpty()) {
+				endpoint.append("accessToken=" + accessToken + "&");
+			}
+			
+			endpoint.append("method=" + request.method + "&");
+			
+			Log.d("Accessing Endpoint", endpoint.toString());
+			
 			HttpClient client = new DefaultHttpClient();
-			HttpPost httpPost = new HttpPost(this.baseURL + "method=" + request.method);
+			HttpPost httpPost = new HttpPost(endpoint.toString());
 			
 			List<NameValuePair> data = new ArrayList<NameValuePair>(1);
-			data.add(new BasicNameValuePair("params", request.getSerializedPayload()));
+			
+			String requestPayload = request.getSerializedPayload();
+			Log.d("Sending payload", requestPayload);
+			data.add(new BasicNameValuePair("params", requestPayload));
 				
 			httpPost.setEntity(new UrlEncodedFormEntity(data));
 	
@@ -53,20 +66,26 @@ public class APIInterface {
 			StatusLine statusLine = response.getStatusLine();
 			
 			int statusCode = statusLine.getStatusCode();
+			
 			if (statusCode == 200) {
 				HttpEntity entity = response.getEntity();
 				InputStream content = entity.getContent();
 				BufferedReader reader = new BufferedReader(new InputStreamReader(content));
 				String line;
 			    while ((line = reader.readLine()) != null) {
-			    	builder.append(line);
+			    	responsePayload.append(line);
 			    }
+			    
+				Log.d("Response", responsePayload.toString());
 			}
+			
+			// TODO: error handling.
 		}
-		catch(IOException e) {
+		catch(Exception e) {
+			e.printStackTrace();
 			Log.e("OMG", "ERROR");
 		}
 		
-	    return new Response(builder.toString());
+	    return new Response(responsePayload.toString());
 	}
 }

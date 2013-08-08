@@ -2,54 +2,29 @@ package se.cordless.player;
 
 import android.os.Bundle;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.util.Log;
 
-import se.cordless.player.manager.APIInterface;
+import se.cordless.player.manager.State;
 
 public class MainActivity extends Activity {
 
-	public APIInterface api = null;
-	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+	  this.init();
+	} 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        
-   		SharedPreferences settings = getPreferences(0);
-   		
-   		Boolean useHTTPS = settings.getBoolean("use_https", false);
-    	String hostAddress = settings.getString("host_address", "");
-    	String accessToken = settings.getString("access_token", "");
-    	
-    	if (hostAddress.isEmpty()) {
-    		Intent intent = new Intent(this, SettingsActivity.class);
-    		startActivity(intent);
-    	}
-    	
-    	String baseURL = "";
-    	if (useHTTPS) {
-    		baseURL = "https://";
-    	}
-    	else {
-    		baseURL = "http://";
-    	}
-    	
-    	baseURL = baseURL + hostAddress + "/api/";
-
-    	if (accessToken.isEmpty()) {
-    		Intent intent = new Intent(this, LoginActivity.class);
-    		startActivity(intent);
-    	}
-        
-        api = new APIInterface(baseURL, accessToken);
+        this.init();
     }
-
-
+    
+ 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -66,5 +41,30 @@ public class MainActivity extends Activity {
     		break;
     	}
         return false;
+    }
+    
+    public Boolean init() {
+
+    	State state = new State(this);
+    	SharedPreferences settings = state.getPreferences();
+    	
+    	String hostAddress = settings.getString("host_address", "");
+    	String accessToken = settings.getString("access_token", "");
+    	
+    	Log.d("host_address", hostAddress);
+    	if (hostAddress.isEmpty()) {
+    		Intent intent = new Intent(this, SettingsActivity.class);
+    		startActivityForResult(intent, 1);
+    		return false;
+    	}
+    	
+    	Log.d("access_token", "X" + accessToken);
+    	if (accessToken.isEmpty()) {
+    		Intent intent = new Intent(this, LoginActivity.class);
+    		startActivityForResult(intent, 2);
+    		return false;
+    	}
+    	
+    	return true;
     }
 }
